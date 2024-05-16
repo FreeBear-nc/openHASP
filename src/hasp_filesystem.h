@@ -32,7 +32,12 @@ typedef struct
 } zip_file_header_t;
 
 #if defined(ARDUINO_ARCH_ESP32)
-#if HASP_USE_SPIFFS > 0
+#if HASP_USE_SDCARD > 0
+#include "FS.h"
+#include "SD.h"
+#include "SPI.h"
+#define HASP_FS SD
+#elif HASP_USE_SPIFFS > 0
 #include "SPIFFS.h"
 #define HASP_FS SPIFFS
 #elif HASP_USE_LITTLEFS > 0

@@ -291,19 +291,21 @@ bool filesystemSetup(void)
     // Logging is deferred until debugging has started
     // FS success or failure is printed at that time !
 
-#if HASP_USE_SPIFFS > 0 || HASP_USE_LITTLEFS > 0
-#if defined(ARDUINO_ARCH_ESP8266)
+#if HASP_USE_SPIFFS > 0 || HASP_USE_LITTLEFS > 0 || HASP_USE_SDCARD
+#if HASP_USE_SDCARD
+    SPI.begin(SD_SCLK, SD_MISO, SD_MOSI, -1);
+    if (HASP_FS.begin(SD_CS)) {
+#elif defined(ARDUINO_ARCH_ESP8266)
     if(!HASP_FS.begin()) {
 #else
     if(HASP_FS.begin(false)) return true; // already formatted
-
     if(!HASP_FS.begin(true)) { // format partition
 #endif
-        // LOG_ERROR(TAG_FILE, F("SPI flash init failed. Unable to mount FS."));
+        LOG_ERROR(TAG_FILE, F("SPI flash init failed. Unable to mount FS."));
         // return false;
     } else {
         filesystemSetupFiles();
-        // LOG_INFO(TAG_FILE, F("SPI Flash FS mounted"));
+        LOG_INFO(TAG_FILE, F("SPI Flash FS mounted"));
         return true;
     }
 #endif
