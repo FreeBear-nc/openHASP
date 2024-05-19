@@ -426,6 +426,21 @@ void Esp32Device::get_info(JsonDocument& doc)
 
     Parser::format_bytes(HASP_FS.totalBytes() - HASP_FS.usedBytes(), size_buf, sizeof(size_buf));
     info[F(D_INFO_FS_FREE)] = size_buf;
+
+#if HASP_USE_SDCARD > 0
+    buffer = sdCardType();
+    info["SD card type: "] = buffer;
+
+    Parser::format_bytes(HASP_SDCARD.totalBytes(), size_buf, sizeof(size_buf));
+    info["SD Card size"] = size_buf;
+
+    Parser::format_bytes(HASP_SDCARD.usedBytes(), size_buf, sizeof(size_buf));
+    info["SD Card used"] = size_buf;
+
+    Parser::format_bytes(HASP_SDCARD.totalBytes() - HASP_SDCARD.usedBytes(), size_buf, sizeof(size_buf));
+    info["SD Card free"] = size_buf;
+#endif
+
 }
 
 void Esp32Device::get_sensors(JsonDocument& doc)

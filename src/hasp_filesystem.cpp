@@ -283,6 +283,35 @@ void filesystemSetupFiles()
 #endif
 }
 
+#if HASP_USE_SDCARD > 0
+const char* sdCardType(void)
+{
+    const char* card[] = {"NONE", "MMC", "SDSC", "SDHC", "UNKNOWN"};
+    uint8_t cardType = HASP_SDCARD.cardType();
+    if (cardType == CARD_NONE) {
+        LOG_ERROR(TAG_FILE, F("No SD card attached"));
+    }
+    LOG_INFO(TAG_FILE, "SD card type: %s (%u)", card[cardType], cardType);
+    return card[cardType];
+}
+
+bool sdcardSetup(void)
+{
+    bool flag = false;
+    pinMode(SD_CS, OUTPUT);
+    digitalWrite(SD_CS, HIGH);
+    SPI.begin(SD_SCLK, SD_MISO, SD_MOSI, SD_CS);
+
+    if (!HASP_SDCARD.begin(SD_CS, SPI, SD_HZ)) {
+        LOG_ERROR(TAG_FILE, F("SD Card Mount Failed"));
+        return false;
+    }
+    sdCardType();
+    LOG_INFO(TAG_FILE, "SD Card Size: %l MB", HASP_SDCARD.cardSize() / (1024 * 1024));
+    return true;
+}
+#endif
+
 bool filesystemSetup(void)
 {
     // no SPIFFS settings, as settings depend on SPIFFS
@@ -290,15 +319,16 @@ bool filesystemSetup(void)
 
     // Logging is deferred until debugging has started
     // FS success or failure is printed at that time !
+#if HASP_USE_SDCARD > 0
+    sdcardSetup();
+#endif
 
-#if HASP_USE_SPIFFS > 0 || HASP_USE_LITTLEFS > 0 || HASP_USE_SDCARD
-#if HASP_USE_SDCARD
-    SPI.begin(SD_SCLK, SD_MISO, SD_MOSI, -1);
-    if (HASP_FS.begin(SD_CS)) {
-#elif defined(ARDUINO_ARCH_ESP8266)
+#if HASP_USE_SPIFFS > 0 || HASP_USE_LITTLEFS > 0
+#if defined(ARDUINO_ARCH_ESP8266)
     if(!HASP_FS.begin()) {
 #else
     if(HASP_FS.begin(false)) return true; // already formatted
+
     if(!HASP_FS.begin(true)) { // format partition
 #endif
         LOG_ERROR(TAG_FILE, F("SPI flash init failed. Unable to mount FS."));

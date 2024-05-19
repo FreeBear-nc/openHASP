@@ -8,7 +8,10 @@
 #include <FS.h>
 
 bool filesystemSetup(void);
-
+#if HASP_USE_SDCARD > 0
+bool sdcardSetup(void);
+const char* sdCardType(void);
+#endif
 void filesystemList();
 void filesystemInfo();
 void filesystemSetupFiles();
@@ -36,8 +39,25 @@ typedef struct
 #include "FS.h"
 #include "SD.h"
 #include "SPI.h"
-#define HASP_FS SD
-#elif HASP_USE_SPIFFS > 0
+#define HASP_SDCARD SD
+#ifndef SD_SCLK
+#define SD_SCLK TFT_SCLK
+#endif
+#ifndef SD_MISO
+#define SD_MISO TFT_MISO
+#endif
+#ifndef SD_MOSI
+#define SD_MOSI TFT_MOSI
+#endif
+#ifndef SD_CS
+#define SD_CS -1
+#endif
+#ifndef SD_HZ
+#define SD_HZ 40000000  // Set to 40MHz - May want to drop to 24MHz or lower.
+#endif
+#endif  // HASP_USE_SDCARD
+
+#if HASP_USE_SPIFFS > 0
 #include "SPIFFS.h"
 #define HASP_FS SPIFFS
 #elif HASP_USE_LITTLEFS > 0
