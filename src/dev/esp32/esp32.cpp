@@ -431,8 +431,11 @@ void Esp32Device::get_info(JsonDocument& doc)
     buffer = sdCardType();
     info["SD card type: "] = buffer;
 
-    Parser::format_bytes(HASP_SDCARD.totalBytes(), size_buf, sizeof(size_buf));
+    Parser::format_bytes(HASP_SDCARD.cardSize(), size_buf, sizeof(size_buf));
     info["SD Card size"] = size_buf;
+
+    Parser::format_bytes(HASP_SDCARD.totalBytes(), size_buf, sizeof(size_buf));
+    info["SD Card total space"] = size_buf;
 
     Parser::format_bytes(HASP_SDCARD.usedBytes(), size_buf, sizeof(size_buf));
     info["SD Card used"] = size_buf;
