@@ -297,6 +297,10 @@ const char* sdCardType(void)
 
 bool sdcardSetup(void)
 {
+    /* Note: SPI & SD setup needs to be deferred until after TFT setup is
+             complete. Certainly, with the ArduinoGFX library (possibly others)
+             there is an IO conflict especially when using Arduino_SWSPI.
+    */
     bool flag = false;
     pinMode(SD_CS, OUTPUT);
     digitalWrite(SD_CS, HIGH);
@@ -319,9 +323,6 @@ bool filesystemSetup(void)
 
     // Logging is deferred until debugging has started
     // FS success or failure is printed at that time !
-#if HASP_USE_SDCARD > 0
-    sdcardSetup();
-#endif
 
 #if HASP_USE_SPIFFS > 0 || HASP_USE_LITTLEFS > 0
 #if defined(ARDUINO_ARCH_ESP8266)

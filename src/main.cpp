@@ -69,10 +69,6 @@ void setup()
     //     filesystemSetup();  // FS mount is done in configSetup()
     // #endif
 
-    // #if HASP_USE_SDCARD > 0
-    //     sdcardSetup();
-    // #endif
-
     /****************************
      * Read & Apply User Configuration
      ***************************/
@@ -87,6 +83,11 @@ void setup()
 
     dispatchSetup(); // before hasp and oobe, asap after logging starts
     guiSetup();
+
+#if HASP_USE_SDCARD > 0
+    // Defer SD setup until after TFT is done using SPI
+    sdcardSetup();
+#endif
 
     bool oobe = false;
 #if HASP_USE_CONFIG > 0
