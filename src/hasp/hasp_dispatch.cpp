@@ -43,7 +43,7 @@ uint16_t dispatchSecondsToNextTeleperiod = 0;
 uint16_t dispatchSecondsToNextSensordata = 0;
 uint16_t dispatchSecondsToNextDiscovery  = 0;
 uint8_t nCommands                        = 0;
-haspCommand_t commands[29];
+haspCommand_t commands[30];
 
 moodlight_t moodlight    = {.brightness = 255};
 uint8_t saved_jsonl_page = 0;
@@ -1524,6 +1524,27 @@ void dispatch_theme(const char*, const char* themeid, uint8_t source)
     hasp_set_theme(atoi(themeid));
 }
 
+void dispatch_list(const char*, const char* path, uint8_t source)
+{
+    LOG_INFO(TAG_MSGR, "List contents: %s", path);
+    String payload = "{\"UNKNOWN\"}";
+
+    if(path == strstr_P(path, PSTR("L:"))) {
+        payload = filesystem_list(HASP_FS, "/", 0);
+#if HASP_USE_SDCARD > 0
+    } else if (path == strstr_P(path, PSTR("S:"))) {
+        payload = filesystem_list(HASP_SDCARD, "/", 0);
+#endif
+    } else {
+printf("Invalid drive ?\n");
+        LOG_ERROR(TAG_MSGR, "Invalid drive specified");
+    }
+
+    char topic[5];
+    snprintf_P(topic, sizeof(topic), PSTR("list"));
+    dispatch_state_subtopic(topic, payload.c_str());
+}
+
 void dispatch_service(const char*, const char* payload, uint8_t source)
 {
 #if HASP_USE_TELNET > 0
@@ -1620,6 +1641,8 @@ void dispatchSetup()
     // dispatch_add_command(PSTR("brightness"), dispatch_backlight_obsolete);
     // dispatch_add_command(PSTR("light"), dispatch_backlight_obsolete);
     dispatch_add_command(PSTR("wakeup"), dispatch_wakeup_obsolete); // used in CC
+
+    dispatch_add_command(PSTR("list"), dispatch_list);
 
 #if HASP_USE_SPIFFS > 0 || HASP_USE_LITTLEFS > 0
 #if defined(ARDUINO_ARCH_ESP32)

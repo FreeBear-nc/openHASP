@@ -74,6 +74,9 @@ void dispatch_page_prev(lv_scr_load_anim_t effectid);
 void dispatch_page_back(lv_scr_load_anim_t effectid);
 void dispatch_page(const char*, const char* payload, uint8_t source);
 
+// File handling commands
+void dispatch_list(const char*, const char* payload, uint8_t source);
+
 bool dispatch_factory_reset();
 void dispatch_reboot(bool saveConfig);
 void dispatch_current_state(uint8_t source);

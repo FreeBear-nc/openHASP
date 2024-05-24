@@ -225,6 +225,10 @@ String filesystem_list(fs::FS& fs, const char* dirname, uint8_t levels)
             data += file.name();
             data += "\"";
 
+            data += ",\"size\":\"";
+            data += file.size();
+            data += "\"";
+
             if(file.isDirectory()) {
                 data += ",\"children\":";
                 if(levels) {
