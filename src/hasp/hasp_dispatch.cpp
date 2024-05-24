@@ -1540,6 +1540,7 @@ printf("Invalid drive ?\n");
         LOG_ERROR(TAG_MSGR, "Invalid drive specified");
     }
 
+    payload = payload.substring(1, payload.length() -1);
     char topic[5];
     snprintf_P(topic, sizeof(topic), PSTR("list"));
     dispatch_state_subtopic(topic, payload.c_str());
